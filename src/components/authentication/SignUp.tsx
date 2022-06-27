@@ -14,8 +14,15 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
-  const [pic, setPic] = useState("");
+  const [pic, setPic] = useState<File | null | undefined>(null);
   const [show, setShow] = useState(false);
+
+  const postDetails = (pic: File | null | undefined) => {
+    console.log(pic);
+    setPic(pic);
+  };
+
+  const submitHandler = () => {};
 
   return (
     <VStack spacing="5px">
@@ -43,10 +50,11 @@ const SignUp = () => {
             onChange={(e) => setPassword(e.target.value)}
             type={show ? "text" : "password"}
           />
-          <InputRightElement width="4.5rem"></InputRightElement>
-          <Button h="1.75rem" size="sm" onClick={() => setShow((p) => !p)}>
-            {show ? "Hide" : "Show"}
-          </Button>
+          <InputRightElement width="4.5rem">
+            <Button h="1.75rem" size="sm" onClick={() => setShow((p) => !p)}>
+              {show ? "Hide" : "Show"}
+            </Button>
+          </InputRightElement>
         </InputGroup>
       </FormControl>
 
@@ -58,12 +66,32 @@ const SignUp = () => {
             onChange={(e) => setConfirmPass(e.target.value)}
             type={show ? "text" : "password"}
           />
-          <InputRightElement width="4.5rem"></InputRightElement>
-          <Button h="1.75rem" size="sm" onClick={() => setShow((p) => !p)}>
-            {show ? "Hide" : "Show"}
-          </Button>
+          <InputRightElement width="4.5rem">
+            <Button h="1.75rem" size="sm" onClick={() => setShow((p) => !p)}>
+              {show ? "Hide" : "Show"}
+            </Button>
+          </InputRightElement>
         </InputGroup>
       </FormControl>
+
+      <FormControl id="pic">
+        <FormLabel>Upload your profile picture</FormLabel>
+        <Input
+          type="file"
+          p={1.5}
+          accept="image/*"
+          onChange={(e) => postDetails(e.target.files?.[0])}
+        />
+      </FormControl>
+
+      <Button
+        colorScheme="blue"
+        width="100%"
+        style={{ marginTop: 15 }}
+        onClick={submitHandler}
+      >
+        Sign Up
+      </Button>
     </VStack>
   );
 };
