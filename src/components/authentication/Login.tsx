@@ -5,17 +5,50 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
+import axios from "axios";
 import { useState } from "react";
+import { useHistory } from "react-router-dom";
 
 const Login = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const toast = useToast();
+  const history = useHistory();
 
-  const submitHandler = () => {};
+  const makeToast = (
+    title: string,
+    duration: number | null,
+    status: any,
+    description?: string
+  ) => toast({ title, description, status, duration, isClosable: true });
+
+  const submitHandler = async () => {
+    setIsLoading(true);
+    if (!email || !password) {
+      makeToast("Please fill all the Fields", 5000, "warning");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const config = { headers: { "Content-type": "application/json" } };
+      const reqBody = { email, password };
+      const { data } = await axios.post("/api/user/signin", reqBody, config);
+      makeToast("Login Successful", 3000, "success");
+      localStorage.setItem("userInfo", JSON.stringify(data));
+      history.push("/chats");
+    } catch (error) {
+      const err = error as any;
+      makeToast("Error Occured!", 10000, "error", err.response.data.message);
+    }
+    setIsLoading(false);
+  };
 
   return (
     <VStack spacing="5px">
@@ -24,6 +57,7 @@ const Login = () => {
         <Input
           placeholder="Enter Your Email"
           onChange={(e) => setEmail(e.target.value)}
+          value={email}
         />
       </FormControl>
 
@@ -34,6 +68,7 @@ const Login = () => {
             placeholder="Enter the Password"
             onChange={(e) => setPassword(e.target.value)}
             type={show ? "text" : "password"}
+            value={password}
           />
           <InputRightElement width="4.5rem">
             <Button h="1.75rem" size="sm" onClick={() => setShow((p) => !p)}>
@@ -48,6 +83,7 @@ const Login = () => {
         width="100%"
         style={{ marginTop: 15 }}
         onClick={submitHandler}
+        isLoading={isLoading}
       >
         Sign In
       </Button>
@@ -58,7 +94,7 @@ const Login = () => {
         style={{ marginTop: 15 }}
         onClick={() => {
           setEmail("guest@example.com");
-          setPassword("123456");
+          setPassword("1234567890");
         }}
       >
         Get Guest User Credentials

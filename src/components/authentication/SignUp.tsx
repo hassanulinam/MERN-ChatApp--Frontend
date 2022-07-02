@@ -75,11 +75,7 @@ const SignUp = () => {
     }
 
     try {
-      const config = {
-        headers: {
-          "Content-type": "application/json",
-        },
-      };
+      const config = { headers: { "Content-type": "application/json" } };
       const reqBody = { name, email, password, pic };
       const { data } = await axios.post("/api/user/signup", reqBody, config);
       makeToast("Registration Successful", 3000, "success");
