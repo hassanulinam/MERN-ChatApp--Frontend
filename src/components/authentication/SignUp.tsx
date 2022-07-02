@@ -5,24 +5,93 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
+import axios from "axios";
 import { useState } from "react";
+import { useHistory } from "react-router-dom";
 
 const SignUp = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
-  const [pic, setPic] = useState<File | null | undefined>(null);
+  const [pic, setPic] = useState<File | null | undefined>(undefined);
   const [show, setShow] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const history = useHistory();
+  const toast = useToast();
 
-  const postDetails = (pic: File | null | undefined) => {
-    console.log(pic);
-    setPic(pic);
+  const makeToast = (
+    title: string,
+    duration: number,
+    status: any,
+    description?: string
+  ) => toast({ title, description, status, duration, isClosable: true });
+
+  const postDetails = (uploadedPic: File | null | undefined) => {
+    setIsLoading(true);
+    if (!uploadedPic) {
+      makeToast("Please select an Image!", 3000, "warning");
+      return;
+    }
+    if (uploadedPic.type === "image/jpeg" || uploadedPic.type === "image/png") {
+      const data = new FormData();
+      data.append("file", uploadedPic);
+      data.append("upload_preset", "talkative-app");
+      data.append("cloud_name", "hassanulinam");
+      fetch("https://api.cloudinary.com/v1_1/hassanulinam/image/upload", {
+        method: "post",
+        body: data,
+      })
+        .then((res: any) => res.json())
+        .then((rdata: any) => {
+          setPic(rdata.url.toString());
+          console.log(rdata, rdata.url);
+          setIsLoading(false);
+        })
+        .catch((err: any) => {
+          console.log(err);
+          setIsLoading(false);
+        });
+    } else {
+      makeToast("Please select an jpeg/png Image!", 3000, "warning");
+      return;
+    }
   };
 
-  const submitHandler = () => {};
+  const submitHandler = async () => {
+    setIsLoading(true);
+    if (!name || !email || !password || !confirmPass) {
+      makeToast("Please fill all the Fields", 5000, "warning");
+      setIsLoading(false);
+      return;
+    }
+    if (password !== confirmPass) {
+      makeToast("Passwords do not match", 3000, "warning");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+        },
+      };
+      const reqBody = { name, email, password, pic };
+      const { data } = await axios.post("/api/user/signup", reqBody, config);
+      makeToast("Registration Successful", 3000, "success");
+      localStorage.setItem("userInfo", JSON.stringify(data));
+      setIsLoading(false);
+      history.push("/chats");
+    } catch (error) {
+      const err = error as any;
+      makeToast("Error Occured", 7000, "error", err.response.data.message);
+      setIsLoading(false);
+    }
+  };
 
   return (
     <VStack spacing="5px">
@@ -89,6 +158,7 @@ const SignUp = () => {
         width="100%"
         style={{ marginTop: 15 }}
         onClick={submitHandler}
+        isLoading={isLoading}
       >
         Sign Up
       </Button>
