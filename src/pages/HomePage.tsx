@@ -8,10 +8,13 @@ import {
   Tabs,
   Text,
 } from "@chakra-ui/react";
-import Login from "../../components/authentication/Login";
-import SignUp from "../../components/authentication/SignUp";
+import { Redirect } from "react-router-dom";
+import Login from "../components/authentication/Login";
+import SignUp from "../components/authentication/SignUp";
 
-const index = () => {
+const HomePage = () => {
+  const userInfo = JSON.parse(localStorage.getItem("userInfo") as string);
+  if (userInfo?.token) return <Redirect to="/chats" />;
   return (
     <Container maxW="xl" centerContent>
       <Box
@@ -48,4 +51,4 @@ const index = () => {
   );
 };
 
-export default index;
+export default HomePage;

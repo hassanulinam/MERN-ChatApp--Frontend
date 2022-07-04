@@ -11,6 +11,7 @@ import {
 import axios from "axios";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
+import { ChatState } from "../../context/ChatProvider";
 
 const SignUp = () => {
   const [name, setName] = useState("");
@@ -22,6 +23,7 @@ const SignUp = () => {
   const [isLoading, setIsLoading] = useState(false);
   const history = useHistory();
   const toast = useToast();
+  const { setUser } = ChatState();
 
   const makeToast = (
     title: string,
@@ -77,9 +79,10 @@ const SignUp = () => {
     try {
       const config = { headers: { "Content-type": "application/json" } };
       const reqBody = { name, email, password, pic };
-      const { data } = await axios.post("/api/user/signup", reqBody, config);
+      const { data } = await axios.post("/api/user/", reqBody, config);
       makeToast("Registration Successful", 3000, "success");
       localStorage.setItem("userInfo", JSON.stringify(data));
+      setUser(data);
       setIsLoading(false);
       history.push("/chats");
     } catch (error) {
