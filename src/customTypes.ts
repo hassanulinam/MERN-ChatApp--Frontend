@@ -8,13 +8,15 @@ export type USER = {
 } | null;
 
 export type MESSAGE = {
+  _id: string;
   sender: USER;
   content: string;
   chat: CHAT;
 };
 
 export type CHAT = {
-  name: string;
+  _id: string;
+  chatName: string;
   isGroupChat: boolean;
   users: USER[];
   latestMessage: MESSAGE;

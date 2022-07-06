@@ -18,6 +18,7 @@ import {
   DrawerBody,
   Input,
   useToast,
+  Spinner,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useState } from "react";
@@ -32,9 +33,8 @@ const SideDrawer = () => {
   const [searchInput, setSearchInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
-  const [SelectedChat, setSelectedChat] = useState<CHAT>(null);
   const [searchResults, setSearchResults] = useState<USER[]>([]);
-  const { user } = ChatState();
+  const { user, setSelectedChat, chats, setChats } = ChatState();
   const history = useHistory();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -104,10 +104,16 @@ const SideDrawer = () => {
         },
       };
       const { data } = await axios.post("/api/chat", { userId }, config);
+
+      if (!chats.find((c) => c!._id === data._id)) setChats([data, ...chats]);
+
       setSelectedChat(data);
       setLoadingChat(false);
       onClose();
-    } catch (err) {}
+    } catch (err) {
+      makeToast("Error fetching the chat", 5000, "error", "bottom-left");
+      setLoadingChat(false);
+    }
   };
 
   return (
@@ -180,6 +186,7 @@ const SideDrawer = () => {
                 <UserListItem key={usr?._id} usr={usr} handle={accessChat} />
               ))
             )}
+            {loadingChat && <Spinner ml="auto" display="flex" />}
           </DrawerBody>
         </DrawerContent>
       </Drawer>
