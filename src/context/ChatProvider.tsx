@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
 import { CHAT_CONTEXT, CHAT, USER } from "../customTypes";
 
 type propTypes = {
@@ -18,11 +19,13 @@ const ChatProvider = ({ children }: propTypes) => {
   const [user, setUser] = useState<USER>(null);
   const [chats, setChats] = useState<CHAT[]>([]);
   const [selectedChat, setSelectedChat] = useState<CHAT>(null);
+  const history = useHistory();
 
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo") as string);
     setUser(userInfo);
-  }, []);
+  }, [history]);
+  console.log("USER INFO: ", user);
 
   return (
     <ChatContext.Provider

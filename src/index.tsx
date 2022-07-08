@@ -10,10 +10,10 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <BrowserRouter>
-    <ChatProvider>
-      <ChakraProvider>
+    <ChakraProvider>
+      <ChatProvider>
         <App />
-      </ChakraProvider>
-    </ChatProvider>
+      </ChatProvider>
+    </ChakraProvider>
   </BrowserRouter>
 );
