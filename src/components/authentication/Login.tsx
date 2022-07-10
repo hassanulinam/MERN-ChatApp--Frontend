@@ -21,7 +21,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const history = useHistory();
-  const { setUser } = ChatState();
+  const { setCurrentUser: setUser } = ChatState();
 
   const makeToast = (
     title: string,

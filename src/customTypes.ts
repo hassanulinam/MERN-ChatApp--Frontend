@@ -24,8 +24,8 @@ export type CHAT = {
 } | null;
 
 export type CHAT_CONTEXT = {
-  user: USER;
-  setUser: React.Dispatch<React.SetStateAction<USER>>;
+  currentUser: USER;
+  setCurrentUser: React.Dispatch<React.SetStateAction<USER>>;
   chats: CHAT[];
   setChats: React.Dispatch<React.SetStateAction<CHAT[]>>;
   selectedChat: CHAT;

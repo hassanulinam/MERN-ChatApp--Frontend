@@ -3,13 +3,13 @@ import { USER } from "../../customTypes";
 
 type PROPTypes = {
   usr: USER;
-  handle: (userId: string) => void;
+  handle: () => void;
 };
 
-const usrListItem = ({ usr, handle }: PROPTypes) => {
+const UserListItem = ({ usr, handle }: PROPTypes) => {
   return (
     <Box
-      onClick={() => handle(usr?._id as string)}
+      onClick={handle}
       cursor="pointer"
       bg="#E8E8E8"
       _hover={{
@@ -43,4 +43,4 @@ const usrListItem = ({ usr, handle }: PROPTypes) => {
   );
 };
 
-export default usrListItem;
+export default UserListItem;

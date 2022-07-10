@@ -25,16 +25,7 @@ const ProfileModal = ({ children, user }: propTypes) => {
 
   return (
     <>
-      {children ? (
-        <span onClick={onOpen}>{children}</span>
-      ) : (
-        <IconButton
-          aria-label="view profile"
-          display={{ base: "flex" }}
-          icon={<ViewIcon />}
-          onClick={onOpen}
-        />
-      )}
+      <span onClick={onOpen}>{children}</span>
       <Modal size="lg" isCentered isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent h="410px">

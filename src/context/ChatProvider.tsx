@@ -7,8 +7,8 @@ type propTypes = {
 };
 
 const ChatContext = createContext<CHAT_CONTEXT>({
-  user: null,
-  setUser: () => {},
+  currentUser: null,
+  setCurrentUser: () => {},
   chats: [],
   setChats: () => {},
   selectedChat: null,
@@ -16,20 +16,27 @@ const ChatContext = createContext<CHAT_CONTEXT>({
 });
 
 const ChatProvider = ({ children }: propTypes) => {
-  const [user, setUser] = useState<USER>(null);
+  const [currentUser, setCurrentUser] = useState<USER>(null);
   const [chats, setChats] = useState<CHAT[]>([]);
   const [selectedChat, setSelectedChat] = useState<CHAT>(null);
   const history = useHistory();
 
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo") as string);
-    setUser(userInfo);
+    setCurrentUser(userInfo);
   }, [history]);
-  console.log("USER INFO: ", user);
+  console.log("USER INFO: ", currentUser);
 
   return (
     <ChatContext.Provider
-      value={{ user, setUser, chats, setChats, selectedChat, setSelectedChat }}
+      value={{
+        currentUser,
+        setCurrentUser,
+        chats,
+        setChats,
+        selectedChat,
+        setSelectedChat,
+      }}
     >
       {children}
     </ChatContext.Provider>

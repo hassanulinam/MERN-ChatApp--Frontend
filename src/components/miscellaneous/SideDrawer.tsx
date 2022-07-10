@@ -23,6 +23,7 @@ import {
 import axios from "axios";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
+import { getAuthHeaderConfig } from "../../config/ChatLogics";
 import { ChatState } from "../../context/ChatProvider";
 import { CHAT, USER } from "../../customTypes";
 import ChatLoading from "../ChatLoading";
@@ -34,7 +35,7 @@ const SideDrawer = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
   const [searchResults, setSearchResults] = useState<USER[]>([]);
-  const { user, setSelectedChat, chats, setChats } = ChatState();
+  const { currentUser, setSelectedChat, chats, setChats } = ChatState();
   const history = useHistory();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -73,11 +74,7 @@ const SideDrawer = () => {
 
     try {
       setIsLoading(true);
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user?.token}`,
-        },
-      };
+      const config = getAuthHeaderConfig(currentUser);
       const URL = `/api/user?search=${searchInput}`;
       const { data } = await axios.get(URL, config);
       setIsLoading(false);
@@ -97,12 +94,7 @@ const SideDrawer = () => {
   const accessChat = async (userId: string) => {
     try {
       setLoadingChat(true);
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user?.token}`,
-          "Content-type": "application/json",
-        },
-      };
+      const config = getAuthHeaderConfig(currentUser, true);
       const { data } = await axios.post("/api/chat", { userId }, config);
 
       if (!chats.find((c) => c!._id === data._id)) setChats([data, ...chats]);
@@ -150,12 +142,12 @@ const SideDrawer = () => {
               <Avatar
                 size="sm"
                 cursor="pointer"
-                name={user?.name}
-                src={user?.pic}
+                name={currentUser?.name}
+                src={currentUser?.pic}
               />
             </MenuButton>
             <MenuList>
-              <ProfileModal user={user}>
+              <ProfileModal user={currentUser}>
                 <MenuItem>My Profile</MenuItem>
               </ProfileModal>
               <MenuDivider />
@@ -183,7 +175,11 @@ const SideDrawer = () => {
               <ChatLoading />
             ) : (
               searchResults?.map((usr) => (
-                <UserListItem key={usr?._id} usr={usr} handle={accessChat} />
+                <UserListItem
+                  key={usr?._id}
+                  usr={usr}
+                  handle={() => accessChat(usr?._id as string)}
+                />
               ))
             )}
             {loadingChat && <Spinner ml="auto" display="flex" />}

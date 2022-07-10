@@ -23,7 +23,7 @@ const SignUp = () => {
   const [isLoading, setIsLoading] = useState(false);
   const history = useHistory();
   const toast = useToast();
-  const { setUser } = ChatState();
+  const { setCurrentUser: setUser } = ChatState();
 
   const makeToast = (
     title: string,

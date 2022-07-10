@@ -2,15 +2,20 @@ import { AddIcon } from "@chakra-ui/icons";
 import { Box, Button, Stack, Text, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { getSender } from "../config/ChatLogics";
+import { getAuthHeaderConfig, getSender } from "../config/ChatLogics";
 import { ChatState } from "../context/ChatProvider";
 import { USER } from "../customTypes";
 import ChatLoading from "./ChatLoading";
 import GroupChatModal from "./miscellaneous/GroupChatModal";
 
-const MyChats = () => {
+type PROPTypes = {
+  fetchAgain: boolean;
+};
+
+const MyChats = ({ fetchAgain }: PROPTypes) => {
   const [loggedUser, setLoggedUser] = useState<USER>(null);
-  const { selectedChat, setSelectedChat, user, chats, setChats } = ChatState();
+  const { selectedChat, setSelectedChat, currentUser, chats, setChats } =
+    ChatState();
   const toast = useToast();
 
   const makeToast = (
@@ -31,11 +36,7 @@ const MyChats = () => {
 
   const fetchChats = async () => {
     try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user?.token}`,
-        },
-      };
+      const config = getAuthHeaderConfig(currentUser);
       const { data } = await axios.get("/api/chat", config);
       setChats(data);
     } catch (error) {
@@ -46,7 +47,7 @@ const MyChats = () => {
   useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem("userInfo") as string));
     fetchChats();
-  }, []);
+  }, [fetchAgain]);
 
   return (
     <Box
@@ -57,6 +58,7 @@ const MyChats = () => {
       w={{ base: "100%", md: "31%" }}
       borderRadius="lg"
       borderWidth="1px"
+      bg="white"
     >
       <Box
         pb={3}
@@ -98,7 +100,7 @@ const MyChats = () => {
                 bg={selectedChat?._id === c?._id ? "#38B2AC" : "#E8E8E8"}
                 color={selectedChat?._id === c?._id ? "white" : "black"}
                 px={3}
-                py={3}
+                py={2}
                 borderRadius="lg"
                 key={c?._id}
               >
