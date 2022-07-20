@@ -25,7 +25,7 @@ import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { getAuthHeaderConfig } from "../../config/ChatLogics";
 import { ChatState } from "../../context/ChatProvider";
-import { CHAT, USER } from "../../customTypes";
+import { USER } from "../../customTypes";
 import ChatLoading from "../ChatLoading";
 import UserListItem from "../User/UserListItem";
 import ProfileModal from "./ProfileModal";

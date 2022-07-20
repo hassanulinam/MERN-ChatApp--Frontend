@@ -14,7 +14,6 @@ import { useHistory } from "react-router-dom";
 import { ChatState } from "../../context/ChatProvider";
 
 const Login = () => {
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);

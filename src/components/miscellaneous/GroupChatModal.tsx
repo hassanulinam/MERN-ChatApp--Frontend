@@ -1,6 +1,5 @@
 import {
   Button,
-  Text,
   Modal,
   ModalBody,
   ModalCloseButton,

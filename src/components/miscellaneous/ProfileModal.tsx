@@ -1,7 +1,5 @@
-import { ViewIcon } from "@chakra-ui/icons";
 import {
   Button,
-  IconButton,
   Image,
   Modal,
   ModalBody,

@@ -16,7 +16,9 @@ const ChatContext = createContext<CHAT_CONTEXT>({
 });
 
 const ChatProvider = ({ children }: propTypes) => {
-  const [currentUser, setCurrentUser] = useState<USER>(null);
+  const [currentUser, setCurrentUser] = useState<USER>(
+    JSON.parse(localStorage.getItem("userInfo") as string)
+  );
   const [chats, setChats] = useState<CHAT[]>([]);
   const [selectedChat, setSelectedChat] = useState<CHAT>(null);
   const history = useHistory();
@@ -25,8 +27,8 @@ const ChatProvider = ({ children }: propTypes) => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo") as string);
     setCurrentUser(userInfo);
   }, [history]);
-  console.log("USER INFO: ", currentUser);
 
+  console.log("USER INFO: ", currentUser?.name);
   return (
     <ChatContext.Provider
       value={{

@@ -27,9 +27,14 @@ import UserListItem from "../User/UserListItem";
 type PROPTypes = {
   fetchAgain: boolean;
   setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
+  fetchMessages: () => void;
 };
 
-const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }: PROPTypes) => {
+const UpdateGroupChatModal = ({
+  fetchAgain,
+  setFetchAgain,
+  fetchMessages,
+}: PROPTypes) => {
   const [groupChatName, setGroupChatName] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [searchResults, setSearchResults] = useState<USER[]>([]);
@@ -141,6 +146,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }: PROPTypes) => {
         ? setSelectedChat(null) // leave (unselect) the chat
         : setSelectedChat(data); // or update the chat
       setFetchAgain(!fetchAgain);
+      fetchMessages();
       setIsLoading(false);
     } catch (err: any) {
       makeToast("Error Occured!", "error", "bottom", err.response.data.message);
@@ -193,6 +199,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }: PROPTypes) => {
               <Input
                 placeholder="Add Users to Group"
                 mb={1}
+                value={searchInput}
                 onChange={(e: any) => handleSearch(e.target.value)}
               />
             </FormControl>
