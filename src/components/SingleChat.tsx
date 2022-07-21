@@ -11,16 +11,22 @@ import {
 import React, { useEffect, useState } from "react";
 import {
   getAuthHeaderConfig,
+  getSenderName,
   getSender,
-  getSenderObject,
 } from "../config/ChatLogics";
 import { ChatState } from "../context/ChatProvider";
 import ProfileModal from "./miscellaneous/ProfileModal";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
-import { MESSAGE } from "../customTypes";
+import { CHAT, MESSAGE } from "../customTypes";
 import axios from "axios";
 import "./styles.css";
 import ScrollableChat from "./ScrollableChat";
+import { io } from "socket.io-client";
+import { socketActions, socketEmissions } from "../config/socketConst";
+
+const ENDPOINT = "http://localhost:5000";
+var socket = io(ENDPOINT);
+var selectedChatCompare: CHAT;
 
 type PROPTypes = {
   fetchAgain: boolean;
@@ -31,8 +37,18 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: PROPTypes) => {
   const [messages, setMessages] = useState<MESSAGE[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [typing, setTyping] = useState(false);
 
   const { currentUser, selectedChat, setSelectedChat } = ChatState();
+
+  useEffect(() => {
+    socket.emit(socketEmissions.setup, currentUser);
+    socket.on(socketActions.connected, () => setSocketConnected(true));
+    socket.on(socketActions.startTyping, () => setIsTyping(true));
+    socket.on(socketActions.stopTyping, () => setIsTyping(false));
+  }, []);
 
   const toast = useToast();
   const makeToast = (
@@ -61,6 +77,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: PROPTypes) => {
       );
       setMessages(data);
       setIsLoading(false);
+
+      socket.emit(socketEmissions.joinChat, selectedChat._id);
     } catch (error) {
       makeToast(
         "Error Occured!",
@@ -74,10 +92,25 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: PROPTypes) => {
   useEffect(() => {
     console.log("Fetching previous messages");
     fetchMessages();
+    selectedChatCompare = selectedChat;
   }, [selectedChat]);
+
+  useEffect(() => {
+    socket.on(socketActions.msgReceived, (newMsgReceived) => {
+      if (
+        !selectedChatCompare ||
+        selectedChatCompare._id !== newMsgReceived.chat._id
+      ) {
+        // give notification
+      } else {
+        setMessages([...messages, newMsgReceived]);
+      }
+    });
+  });
 
   const sendMessage = async (e: any) => {
     if (e.key === "Enter" && newMessage) {
+      socket.emit(socketEmissions.typingStopped, selectedChat?._id);
       try {
         const config = getAuthHeaderConfig(currentUser, true);
         const reqBody = { content: newMessage, chatId: selectedChat?._id };
@@ -85,6 +118,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: PROPTypes) => {
         const { data } = await axios.post("/api/message", reqBody, config);
         setMessages([...messages, data]);
         console.log("MSG DATA:", data);
+        socket.emit(socketEmissions.newMsg, data);
       } catch (error) {
         makeToast(
           "Error Occured!",
@@ -98,7 +132,23 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: PROPTypes) => {
   const typingHandler = (e: any) => {
     setNewMessage(e.target.value);
 
-    // Typing Logic indicator
+    if (!socketConnected) return;
+
+    if (!typing) {
+      setTyping(true);
+      socket.emit(socketEmissions.typingStarted, selectedChat?._id);
+    }
+    let lastTypingTime = new Date().getTime();
+    var timeLength = 3000;
+    setTimeout(() => {
+      var timeNow = new Date().getTime();
+      var timeDiff = timeNow - lastTypingTime;
+
+      if (timeDiff >= timeLength && typing) {
+        socket.emit(socketEmissions.typingStopped, selectedChat?._id);
+        setTyping(false);
+      }
+    }, timeLength);
   };
 
   return (
@@ -123,10 +173,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: PROPTypes) => {
             />
             {!selectedChat.isGroupChat ? (
               <>
-                {getSender(currentUser, selectedChat.users)}
-                <ProfileModal
-                  user={getSenderObject(currentUser, selectedChat.users)}
-                >
+                {getSenderName(currentUser, selectedChat.users)}
+                <ProfileModal user={getSender(currentUser, selectedChat.users)}>
                   <IconButton
                     aria-label="view profile"
                     display={{ base: "flex" }}
@@ -170,6 +218,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: PROPTypes) => {
               </div>
             )}
             <FormControl onKeyDown={sendMessage} isRequired mt={3}>
+              {isTyping && <div>Loading</div>}
               <Input
                 variant="filled"
                 bg="#E0E0E0"

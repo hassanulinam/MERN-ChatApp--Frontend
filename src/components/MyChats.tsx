@@ -2,7 +2,7 @@ import { AddIcon } from "@chakra-ui/icons";
 import { Box, Button, Stack, Text, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { getAuthHeaderConfig, getSender } from "../config/ChatLogics";
+import { getAuthHeaderConfig, getSenderName } from "../config/ChatLogics";
 import { ChatState } from "../context/ChatProvider";
 import { USER } from "../customTypes";
 import ChatLoading from "./ChatLoading";
@@ -106,7 +106,7 @@ const MyChats = ({ fetchAgain }: PROPTypes) => {
               >
                 <Text>
                   {!c?.isGroupChat
-                    ? getSender(loggedUser, c?.users as USER[])
+                    ? getSenderName(loggedUser, c?.users as USER[])
                     : c?.chatName}
                 </Text>
               </Box>

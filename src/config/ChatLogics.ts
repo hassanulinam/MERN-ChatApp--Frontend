@@ -1,10 +1,24 @@
 import { MESSAGE, USER } from "../customTypes";
 
-export const getSender = (loggedUser: USER, users: USER[]) => {
+export const getAuthHeaderConfig = (usr: USER, isJsonContent?: boolean) =>
+  isJsonContent
+    ? {
+        headers: {
+          Authorization: `Bearer ${usr?.token}`,
+        },
+        "Content-type": "application/json",
+      }
+    : {
+        headers: {
+          Authorization: `Bearer ${usr?.token}`,
+        },
+      };
+
+export const getSenderName = (loggedUser: USER, users: USER[]) => {
   return users[0]?._id === loggedUser?._id ? users[1]?.name : users[0]?.name;
 };
 
-export const getSenderObject = (loggedUser: USER, users: USER[]) => {
+export const getSender = (loggedUser: USER, users: USER[]) => {
   return users[0]?._id === loggedUser?._id ? users[1] : users[0];
 };
 
@@ -31,7 +45,12 @@ export const isSameSenderMargin = (
   userId: string
 ) => {
   let n = messages.length;
-  if (isSameSender(messages, m, i, userId)) return 33;
+  if (
+    i < n - 1 &&
+    messages[i + 1].sender?._id === m.sender?._id &&
+    messages[i].sender?._id !== userId
+  )
+    return 33;
   else if (
     (i < n - 1 &&
       messages[i + 1].sender?._id !== m.sender?._id &&
@@ -44,17 +63,3 @@ export const isSameSenderMargin = (
 
 export const isSameUser = (messages: MESSAGE[], m: MESSAGE, i: number) =>
   i > 0 && messages[i - 1].sender?._id === m.sender?._id;
-
-export const getAuthHeaderConfig = (usr: USER, isJsonContent?: boolean) =>
-  isJsonContent
-    ? {
-        headers: {
-          Authorization: `Bearer ${usr?.token}`,
-        },
-        "Content-type": "application/json",
-      }
-    : {
-        headers: {
-          Authorization: `Bearer ${usr?.token}`,
-        },
-      };
