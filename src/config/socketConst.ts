@@ -2,8 +2,8 @@ export const socketEmissions = {
   setup: "setup",
   joinChat: "join chat",
   newMsg: "new message",
-  typingStarted: "typing now",
-  typingStopped: "typing stopped",
+  startTyping: "typing",
+  stopTyping: "typing off",
 };
 
 export const socketActions = {

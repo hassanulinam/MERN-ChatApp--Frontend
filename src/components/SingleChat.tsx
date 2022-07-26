@@ -23,10 +23,19 @@ import "./styles.css";
 import ScrollableChat from "./ScrollableChat";
 import { io } from "socket.io-client";
 import { socketActions, socketEmissions } from "../config/socketConst";
+import Lottie from "lottie-react";
+import typingAnimationData from "../assets/dote-typing-animation.json";
 
 const ENDPOINT = "http://localhost:5000";
 var socket = io(ENDPOINT);
 var selectedChatCompare: CHAT;
+
+const lottieDefaultOptions = {
+  loop: true,
+  auotplay: true,
+  animationData: typingAnimationData,
+  rendererSettings: { preserveAspectRatio: "xMidYMid slice" },
+};
 
 type PROPTypes = {
   fetchAgain: boolean;
@@ -110,7 +119,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: PROPTypes) => {
 
   const sendMessage = async (e: any) => {
     if (e.key === "Enter" && newMessage) {
-      socket.emit(socketEmissions.typingStopped, selectedChat?._id);
+      socket.emit(socketEmissions.stopTyping, selectedChat?._id);
       try {
         const config = getAuthHeaderConfig(currentUser, true);
         const reqBody = { content: newMessage, chatId: selectedChat?._id };
@@ -136,7 +145,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: PROPTypes) => {
 
     if (!typing) {
       setTyping(true);
-      socket.emit(socketEmissions.typingStarted, selectedChat?._id);
+      socket.emit(socketEmissions.startTyping, selectedChat?._id);
     }
     let lastTypingTime = new Date().getTime();
     var timeLength = 3000;
@@ -145,7 +154,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: PROPTypes) => {
       var timeDiff = timeNow - lastTypingTime;
 
       if (timeDiff >= timeLength && typing) {
-        socket.emit(socketEmissions.typingStopped, selectedChat?._id);
+        socket.emit(socketEmissions.stopTyping, selectedChat?._id);
         setTyping(false);
       }
     }, timeLength);
@@ -174,6 +183,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: PROPTypes) => {
             {!selectedChat.isGroupChat ? (
               <>
                 {getSenderName(currentUser, selectedChat.users)}
+                {isTyping && (
+                  <div style={{ height: 40, margin: 0, padding: 0 }}>
+                    <Lottie
+                      animationData={typingAnimationData}
+                      loop={true}
+                      style={{ margin: 0, padding: 0 }}
+                    />
+                  </div>
+                )}
                 <ProfileModal user={getSender(currentUser, selectedChat.users)}>
                   <IconButton
                     aria-label="view profile"
@@ -218,7 +236,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: PROPTypes) => {
               </div>
             )}
             <FormControl onKeyDown={sendMessage} isRequired mt={3}>
-              {isTyping && <div>Loading</div>}
               <Input
                 variant="filled"
                 bg="#E0E0E0"
