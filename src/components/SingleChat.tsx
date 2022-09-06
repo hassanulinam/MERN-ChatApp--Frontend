@@ -50,7 +50,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: PROPTypes) => {
   const [isTyping, setIsTyping] = useState(false);
   const [typing, setTyping] = useState(false);
 
-  const { currentUser, selectedChat, setSelectedChat } = ChatState();
+  const {
+    currentUser,
+    selectedChat,
+    setSelectedChat,
+    notifications,
+    setNotifications,
+  } = ChatState();
 
   useEffect(() => {
     socket.emit(socketEmissions.setup, currentUser);
@@ -98,19 +104,24 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: PROPTypes) => {
     }
   };
 
+  // Fetch previous messages
   useEffect(() => {
     console.log("Fetching previous messages");
     fetchMessages();
     selectedChatCompare = selectedChat;
   }, [selectedChat]);
 
+  // receive or notify new messages
   useEffect(() => {
     socket.on(socketActions.msgReceived, (newMsgReceived) => {
       if (
         !selectedChatCompare ||
         selectedChatCompare._id !== newMsgReceived.chat._id
       ) {
-        // give notification
+        if (!notifications.includes(newMsgReceived)) {
+          setNotifications([newMsgReceived, ...notifications]);
+          setFetchAgain(!fetchAgain);
+        }
       } else {
         setMessages([...messages, newMsgReceived]);
       }

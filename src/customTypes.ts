@@ -30,4 +30,6 @@ export type CHAT_CONTEXT = {
   setChats: React.Dispatch<React.SetStateAction<CHAT[]>>;
   selectedChat: CHAT;
   setSelectedChat: React.Dispatch<React.SetStateAction<CHAT>>;
+  notifications: MESSAGE[];
+  setNotifications: React.Dispatch<React.SetStateAction<MESSAGE[]>>;
 };

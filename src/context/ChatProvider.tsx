@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { CHAT_CONTEXT, CHAT, USER } from "../customTypes";
+import { CHAT_CONTEXT, CHAT, USER, MESSAGE } from "../customTypes";
 
 type propTypes = {
   children: JSX.Element;
@@ -13,6 +13,8 @@ const ChatContext = createContext<CHAT_CONTEXT>({
   setChats: () => {},
   selectedChat: null,
   setSelectedChat: () => {},
+  notifications: [],
+  setNotifications: () => {},
 });
 
 const ChatProvider = ({ children }: propTypes) => {
@@ -21,6 +23,7 @@ const ChatProvider = ({ children }: propTypes) => {
   );
   const [chats, setChats] = useState<CHAT[]>([]);
   const [selectedChat, setSelectedChat] = useState<CHAT>(null);
+  const [notifications, setNotifications] = useState<MESSAGE[]>([]);
   const history = useHistory();
 
   useEffect(() => {
@@ -38,6 +41,8 @@ const ChatProvider = ({ children }: propTypes) => {
         setChats,
         selectedChat,
         setSelectedChat,
+        notifications,
+        setNotifications,
       }}
     >
       {children}
